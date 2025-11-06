@@ -1,1 +1,46 @@
+---
+import { useState } from "preact/hooks";
 
+const [responses, setResponses] = useState([]);
+const [input, setInput] = useState("");
+
+// Simula una llamada al backend / IA
+async function handleSend() {
+  if (!input.trim()) return;
+
+  const res = await fetch("/api/ai/manual-response", {
+    method: "POST",
+    body: JSON.stringify({ message: input }),
+  });
+  const data = await res.json();
+
+  setResponses([...responses, { text: data.reply, id: Date.now() }]);
+  setInput("");
+}
+---
+
+<section class="manual-response">
+  <h2>Respuestas Manuales IA 💬</h2>
+
+  <div class="input-area">
+    <input
+      type="text"
+      value={input}
+      placeholder="Escribe una orden o pregunta..."
+      onInput={(e) => setInput(e.target.value)}
+    />
+    <button onClick={handleSend}>Enviar</button>
+  </div>
+
+  <div class="response-list">
+    {responses.map((r) => (
+      <button
+        key={r.id}
+        class="response-btn"
+        onClick={() => alert(`IA procesando: ${r.text}`)}
+      >
+        🤖 {r.text}
+      </button>
+    ))}
+  </div>
+</section>
