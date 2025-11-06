@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App theme tokens */
+:root {
+	--bg: 255 255 255;
+	--fg: 15 23 42;
+	--primary: 59 130 246;
+	--primary-dark: 37 99 235;
+	--accent: 14 165 233;
+}
+
+html {
+	color: rgb(var(--fg));
+	background: linear-gradient(135deg, #0ea5e9 0%, #1e3a8a 100%);
+	min-height: 100vh;
+}
+
+@keyframes float {
+	0%, 100% { transform: translateY(0px); }
+	50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-float {
+	animation: float 3s ease-in-out infinite;
+}
+
+.animate-fadeInUp {
+	animation: fadeInUp 0.5s ease-out forwards;
+}
+
+
+

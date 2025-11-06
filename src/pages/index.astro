@@ -1,0 +1,164 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ChatBox from "../components/ChatBox.astro";
+
+---
+
+<BaseLayout title="Asistente Domótico" description="Interfaz principal del asistente">
+	<section class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 h-full flex flex-col">
+		<div id="intro-section" class="text-center mb-8 sm:mb-12 transition-all duration-300">
+			<div class="animate-fadeInUp" style="animation-delay: 0.1s; opacity: 0;">
+				<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4 px-2 drop-shadow-lg">
+					🏠 Asistente Domótico
+				</h1>
+				<p class="text-lg sm:text-xl text-white/90 mb-6 sm:mb-8 px-2 drop-shadow-md">Controla tu hogar inteligente con solo un mensaje</p>
+			</div>
+
+			<div class="grid grid-cols-1 place-items-center gap-4 sm:gap-5 mb-8 sm:mb-10">
+				<!-- Card: Luces -->
+				<div class="relative">
+					<button id="btn-lights" type="button" class="w-full text-left animate-fadeInUp backdrop-blur-md bg-white/90 p-4 sm:p-5 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500" style="animation-delay: 0.2s; opacity: 0;">
+						<div class="text-3xl sm:text-4xl mb-2">💡</div>
+						<h3 class="font-bold text-gray-900 mb-2 text-base sm:text-lg">Control de Luces</h3>
+						<p class="text-xs sm:text-sm text-gray-600">Gestiona la iluminación de cada habitación</p>
+					</button>
+				</div>
+
+				<!-- (Solo Luces disponibles por ahora) -->
+			</div>
+
+			<!-- Botón de comenzar chat -->
+			<div class="animate-fadeInUp" style="animation-delay: 0.5s; opacity: 0;">
+				<button id="start-chat-btn" class="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-sm sm:text-base font-bold rounded-full shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105 w-full sm:w-auto">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+					</svg>
+					<span>Comenzar conversación</span>
+				</button>
+			</div>
+		</div>
+
+		<!-- Chat Container -->
+		<div id="chat-container" class="backdrop-blur-md bg-white/95 border border-white/50 rounded-2xl shadow-2xl opacity-0 transform translate-y-4 transition-all duration-300 w-full flex-1 flex flex-col min-h-0 sm:min-h-auto sm:-mt-8">
+			<ChatBox />
+		</div>
+	</section>
+
+	<script>
+		const startBtn = document.getElementById('start-chat-btn');
+		const chatContainer = document.getElementById('chat-container');
+		const introSection = document.getElementById('intro-section');
+		const section = document.querySelector('section');
+
+		// Botones y menú de luces
+		const btnLights = document.getElementById('btn-lights');
+		const btnDoors = document.getElementById('btn-doors');
+		const btnClimate = document.getElementById('btn-climate');
+
+		// Detectar si es móvil
+		function isMobile() {
+			return window.innerWidth < 640; 
+		}
+		
+		function openChatIfNeeded() {
+			if (!startBtn) return;
+			const visible = startBtn.style.display !== 'none';
+			if (visible) startBtn.click();
+		}
+
+		function sendQuickCommand(text) {
+			openChatIfNeeded();
+			setTimeout(() => {
+				const input = document.getElementById('user-input');
+				const form = document.getElementById('chat-form');
+				if (input && form) {
+					input.value = text;
+					form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+				}
+			}, 350);
+		}
+
+		function showOptionsInChat(category) {
+			openChatIfNeeded();
+			const map = {
+				luces: {
+					title: '¿Qué quieres hacer con las luces?',
+					options: [
+						{ label: 'Prender', meta: { type: 'led-action', action: 'on' } },
+						{ label: 'Apagar', meta: { type: 'led-action', action: 'off' } },
+						{ label: 'Prender todas', meta: { type: 'led-action-all', action: 'on' } },
+						{ label: 'Apagar todas', meta: { type: 'led-action-all', action: 'off' } }
+					]
+				},
+				puertas: {
+					title: '¿Qué quieres hacer con la puerta?',
+					options: [
+						{ label: 'Abrir', command: 'Abrir la puerta' },
+						{ label: 'Cerrar', command: 'Cerrar la puerta' }
+					]
+				},
+				clima: {
+					title: '¿Qué acción de clima necesitas?',
+					options: [
+						{ label: 'Subir temp.', command: 'Subir la temperatura' },
+						{ label: 'Bajar temp.', command: 'Bajar la temperatura' },
+						{ label: 'Ver temperatura', command: '¿Cuál es la temperatura actual?' }
+					]
+				}
+			};
+			const payload = map[category];
+			setTimeout(() => {
+				window.dispatchEvent(new CustomEvent('chat:showOptions', { detail: payload }));
+			}, 350);
+		}
+
+		if (btnLights) {
+			btnLights.addEventListener('click', () => showOptionsInChat('luces'));
+		}
+		if (btnDoors) {
+			btnDoors.addEventListener('click', () => showOptionsInChat('puertas'));
+		}
+		if (btnClimate) {
+			btnClimate.addEventListener('click', () => showOptionsInChat('clima'));
+		}
+		
+		if (startBtn && chatContainer) {
+			startBtn.addEventListener('click', function() {
+				const mobile = isMobile();
+				
+				startBtn.style.transform = 'scale(0.95)';
+				startBtn.style.opacity = '0';
+				
+				setTimeout(() => {
+					startBtn.style.display = 'none';
+					
+					// En móviles, ocultar la sección intro y expandir el chat completamente
+					if (mobile && introSection) {
+						introSection.style.display = 'none';
+						if (section) {
+							section.style.paddingTop = '0';
+							section.style.paddingBottom = '0';
+						}
+						chatContainer.style.height = '100%';
+						chatContainer.style.maxHeight = '100%';
+						chatContainer.style.borderRadius = '0';
+						chatContainer.style.marginTop = '0';
+					} else {
+						
+						chatContainer.style.marginTop = '-2rem';
+					}
+					
+					chatContainer.style.opacity = '1';
+					chatContainer.style.transform = 'translateY(0)';
+					
+					setTimeout(() => {
+						const chatInput = document.getElementById('user-input');
+						if (chatInput) {
+							chatInput.focus();
+						}
+					}, 300);
+				}, 200);
+			});
+		}
+	</script>
+</BaseLayout>
