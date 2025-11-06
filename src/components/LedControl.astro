@@ -1,1 +1,30 @@
+---
+const leds = [
+  { id: 1, name: "Luz Sala", color: "#4f8ef7" },
+  { id: 2, name: "Luz Cocina", color: "#00bfa5" },
+  { id: 3, name: "Luz Dormitorio", color: "#ffb300" },
+];
+
+// Simula respuesta de IA (puedes reemplazarlo por tu backend real)
+async function toggleLed(ledId) {
+  const response = await fetch(`/api/led/${ledId}`, { method: "POST" });
+  const data = await response.json();
+  alert(data.message);
+}
+---
+
+<section class="led-control">
+  <h2>Control de Luces Inteligentes</h2>
+  <div class="led-grid">
+    {leds.map((led) => (
+      <button
+        class="led-btn"
+        style={`background: linear-gradient(135deg, ${led.color}, #005bea);`}
+        onClick={() => toggleLed(led.id)}
+      >
+        💡 {led.name}
+      </button>
+    ))}
+  </div>
+</section>
 
